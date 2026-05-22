@@ -9,6 +9,11 @@ import OrdersPage from "@/pages/orders";
 import DeliverersPage from "@/pages/deliverers";
 import RestaurantsPage from "@/pages/restaurants";
 import LocationsPage from "@/pages/locations";
+import OffersPage from "@/pages/offers";
+import TopPage from "@/pages/top";
+import TrackPage from "@/pages/track";
+import WheelPage from "@/pages/wheel";
+import AccountPage from "@/pages/account";
 import { AuthProvider } from "@/context/auth";
 
 const queryClient = new QueryClient();
@@ -22,6 +27,11 @@ function Router() {
       <Route path="/deliverers" component={DeliverersPage} />
       <Route path="/restaurants" component={RestaurantsPage} />
       <Route path="/locations" component={LocationsPage} />
+      <Route path="/offers" component={OffersPage} />
+      <Route path="/top" component={TopPage} />
+      <Route path="/track" component={TrackPage} />
+      <Route path="/wheel" component={WheelPage} />
+      <Route path="/account" component={AccountPage} />
       <Route component={NotFound} />
     </Switch>
   );

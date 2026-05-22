@@ -1,0 +1,164 @@
+import 'package:flutter/material.dart';
+import 'delivery_map_page.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: const HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+
+      backgroundColor: Colors.grey[100],
+
+      appBar: AppBar(
+        title: const Text("واحد دلفري"),
+        backgroundColor: Colors.green,
+        centerTitle: true,
+      ),
+
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(15),
+
+          child: Column(
+            children: [
+
+              buildCard(
+                context,
+                "طلباتي",
+                Icons.shopping_bag,
+                Colors.orange,
+              ),
+
+              buildCard(
+                context,
+                "المطاعم",
+                Icons.restaurant,
+                Colors.red,
+              ),
+
+              buildCard(
+                context,
+                "العروض",
+                Icons.local_offer,
+                Colors.purple,
+              ),
+
+              buildCard(
+                context,
+                "أفضل المطاعم",
+                Icons.star,
+                Colors.amber,
+              ),
+
+              buildCard(
+                context,
+                "تتبع الطلب",
+                Icons.location_searching,
+                Colors.blue,
+              ),
+
+              GestureDetector(
+                onTap: () {
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const DeliveryMapPage(),
+                    ),
+                  );
+
+                },
+
+                child: buildCard(
+                  context,
+                  "مواقع الدلفرية",
+                  Icons.map,
+                  Colors.green,
+                ),
+              ),
+
+              buildCard(
+                context,
+                "عجلة الحظ",
+                Icons.casino,
+                Colors.teal,
+              ),
+
+              buildCard(
+                context,
+                "حسابي",
+                Icons.person,
+                Colors.black87,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildCard(
+    BuildContext context,
+    String title,
+    IconData icon,
+    Color color,
+  ) {
+    return Container(
+
+      margin: const EdgeInsets.only(bottom: 15),
+
+      padding: const EdgeInsets.all(20),
+
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(20),
+
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 8,
+          ),
+        ],
+      ),
+
+      child: Row(
+        children: [
+
+          Icon(
+            icon,
+            color: Colors.white,
+            size: 35,
+          ),
+
+          const SizedBox(width: 20),
+
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

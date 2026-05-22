@@ -1,33 +1,26 @@
 import { useLocation } from "wouter";
 import { useAuth } from "@/context/auth";
 import Layout from "@/components/layout";
-import { ShoppingBag, UtensilsCrossed, Map, Users } from "lucide-react";
+import {
+  ShoppingBag,
+  UtensilsCrossed,
+  Tag,
+  Star,
+  MapPin,
+  Map,
+  Dices,
+  User,
+} from "lucide-react";
 
 const menuItems = [
-  {
-    label: "طلباتي",
-    icon: ShoppingBag,
-    href: "/orders",
-    dark: true,
-  },
-  {
-    label: "الدلفرية",
-    icon: Users,
-    href: "/deliverers",
-    dark: true,
-  },
-  {
-    label: "المطاعم",
-    icon: UtensilsCrossed,
-    href: "/restaurants",
-    dark: true,
-  },
-  {
-    label: "مواقع الدلفرية",
-    icon: Map,
-    href: "/locations",
-    dark: false,
-  },
+  { label: "طلباتي",          icon: ShoppingBag,     href: "/orders",     color: "#f97316" },
+  { label: "المطاعم",         icon: UtensilsCrossed, href: "/restaurants", color: "#ef4444" },
+  { label: "العروض",          icon: Tag,             href: "/offers",     color: "#a855f7" },
+  { label: "أفضل المطاعم",   icon: Star,            href: "/top",        color: "#f59e0b" },
+  { label: "تتبع الطلب",     icon: MapPin,          href: "/track",      color: "#3b82f6" },
+  { label: "مواقع الدلفرية", icon: Map,             href: "/locations",  color: "#22c55e" },
+  { label: "عجلة الحظ",      icon: Dices,           href: "/wheel",      color: "#14b8a6" },
+  { label: "حسابي",          icon: User,            href: "/account",    color: "#1c1c1c" },
 ];
 
 export default function HomePage() {
@@ -47,20 +40,14 @@ export default function HomePage() {
             key={item.href}
             data-testid={`card-menu-${item.href.replace("/", "")}`}
             onClick={() => setLocation(item.href)}
-            className="w-full flex items-center gap-4 px-6 py-5 rounded-2xl transition active:scale-[0.98]"
+            className="w-full flex items-center gap-5 px-6 py-5 rounded-2xl text-right transition active:scale-[0.98]"
             style={{
-              background: item.dark ? "#1c1c1c" : "hsl(33 100% 50%)",
-              boxShadow: "var(--shadow-md)",
+              background: item.color,
+              boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
             }}
           >
-            <item.icon
-              className="w-8 h-8 flex-shrink-0"
-              style={{ color: "white" }}
-            />
-            <span
-              className="text-xl font-bold"
-              style={{ color: "white" }}
-            >
+            <item.icon className="w-9 h-9 flex-shrink-0 text-white" />
+            <span className="text-[22px] font-bold text-white leading-tight">
               {item.label}
             </span>
           </button>
