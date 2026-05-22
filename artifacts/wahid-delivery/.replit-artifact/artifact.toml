@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "واحد دلفري"
+version = "1.0.0"
+id = "artifacts/wahid-delivery"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23822
+
+[services.development]
+run = "pnpm --filter @workspace/wahid-delivery run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/wahid-delivery", "run", "build" ]
+publicDir = "artifacts/wahid-delivery/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23822"
+BASE_PATH = "/"
