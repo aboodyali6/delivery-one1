@@ -1,0 +1,186 @@
+class DriverHomePage extends StatefulWidget {
+  const DriverHomePage({super.key});
+
+  @override
+  State<DriverHomePage> createState() =>
+      _DriverHomePageState();
+}
+
+class _DriverHomePageState
+    extends State<DriverHomePage> {
+
+  bool showOrderNotification = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future.delayed(
+      const Duration(seconds: 3),
+      () {
+
+        setState(() {
+
+          showOrderNotification = true;
+
+        });
+
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Scaffold(
+
+      body: Stack(
+
+        children: [
+
+          GoogleMap(
+
+            initialCameraPosition:
+                const CameraPosition(
+
+              target: LatLng(
+                30.5085,
+                47.7804,
+              ),
+
+              zoom: 14,
+            ),
+
+            myLocationEnabled: true,
+          ),
+
+          if (showOrderNotification)
+
+            Center(
+
+              child: Container(
+
+                width: 320,
+
+                padding: const EdgeInsets.all(25),
+
+                decoration: BoxDecoration(
+
+                  color: Colors.white,
+
+                  borderRadius:
+                      BorderRadius.circular(25),
+
+                  boxShadow: [
+
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 15,
+                    ),
+                  ],
+                ),
+
+                child: Column(
+
+                  mainAxisSize: MainAxisSize.min,
+
+                  children: [
+
+                    const Icon(
+                      Icons.delivery_dining,
+                      size: 70,
+                      color: Colors.green,
+                    ),
+
+                    const SizedBox(height: 15),
+
+                    const Text(
+                      "طلب جديد 🚀",
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    const Text(
+                      "مطعم البحري",
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    Row(
+
+                      mainAxisAlignment:
+                          MainAxisAlignment.spaceEvenly,
+
+                      children: [
+
+                        ElevatedButton(
+
+                          style:
+                              ElevatedButton.styleFrom(
+                            backgroundColor:
+                                Colors.green,
+                          ),
+
+                          onPressed: () {
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    const RestaurantPage(),
+                              ),
+                            );
+                          },
+
+                          child: const Text(
+                            "قبول",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+
+                        ElevatedButton(
+
+                          style:
+                              ElevatedButton.styleFrom(
+                            backgroundColor:
+                                Colors.red,
+                          ),
+
+                          onPressed: () {
+
+                            setState(() {
+
+                              showOrderNotification =
+                                  false;
+
+                            });
+
+                          },
+
+                          child: const Text(
+                            "رفض",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}

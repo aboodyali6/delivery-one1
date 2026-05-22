@@ -59,7 +59,7 @@ export default function DriverPage() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const [stage, setStage] = useState<Stage>("waiting");
-  const [waitCountdown, setWaitCountdown] = useState(5);
+  const [waitCountdown, setWaitCountdown] = useState(3);
   const [acceptCountdown, setAcceptCountdown] = useState(10);
 
   if (!user) { setLocation("/"); return null; }
@@ -150,8 +150,8 @@ export default function DriverPage() {
         {/* ── NEW ORDER notification — centered white card ── */}
         {stage === "notification" && (
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm px-6">
-            <div className="bg-white rounded-3xl p-6 w-full text-center"
-              style={{ boxShadow: "0 15px 40px rgba(0,0,0,0.3)" }}>
+            <div className="bg-white rounded-3xl p-6 text-center"
+              style={{ width: 320, maxWidth: "100%", boxShadow: "0 15px 40px rgba(0,0,0,0.26)" }}>
 
               {/* Icon */}
               <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
