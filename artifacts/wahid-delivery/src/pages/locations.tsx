@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/context/auth";
 import Layout from "@/components/layout";
-import { MapPin, Navigation, Clock, Users } from "lucide-react";
+import { MapPin, Clock, Users } from "lucide-react";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
 interface DelivererLocation {
   id: string;
@@ -16,40 +18,130 @@ interface DelivererLocation {
 }
 
 const locations: DelivererLocation[] = [
-  { id: "L1", name: "علي حسين", area: "الكرادة - شارع 14", lastSeen: "منذ 2 دقيقة", status: "active", ordersToday: 7, lat: 33.31, lng: 44.39 },
-  { id: "L2", name: "محمد ياسر", area: "المنصور - شارع الأمير", lastSeen: "منذ 5 دقائق", status: "active", ordersToday: 5, lat: 33.33, lng: 44.35 },
-  { id: "L3", name: "سامر علاء", area: "الجادرية - قرب الجسر", lastSeen: "منذ 8 دقائق", status: "idle", ordersToday: 3, lat: 33.28, lng: 44.37 },
-  { id: "L4", name: "حسن مهدي", area: "الأعظمية - الشارع الرئيسي", lastSeen: "منذ 15 دقيقة", status: "idle", ordersToday: 4, lat: 33.36, lng: 44.38 },
-  { id: "L5", name: "كريم أحمد", area: "الزيونة", lastSeen: "منذ ساعة", status: "offline", ordersToday: 9, lat: 33.30, lng: 44.42 },
-  { id: "L6", name: "عمر طارق", area: "الدورة", lastSeen: "منذ 3 ساعات", status: "offline", ordersToday: 0, lat: 33.24, lng: 44.40 },
+  { id: "L1", name: "علي حسين",   area: "الكرادة",    lastSeen: "منذ 2 دقيقة",   status: "active",  ordersToday: 7, lat: 33.3152, lng: 44.3661 },
+  { id: "L2", name: "محمد ياسر",  area: "المنصور",    lastSeen: "منذ 5 دقائق",   status: "active",  ordersToday: 5, lat: 33.3380, lng: 44.3530 },
+  { id: "L3", name: "سامر علاء",  area: "الجادرية",   lastSeen: "منذ 8 دقائق",   status: "idle",    ordersToday: 3, lat: 33.2820, lng: 44.3760 },
+  { id: "L4", name: "حسن مهدي",  area: "الأعظمية",   lastSeen: "منذ 15 دقيقة",  status: "idle",    ordersToday: 4, lat: 33.3620, lng: 44.3870 },
+  { id: "L5", name: "كريم أحمد",  area: "الزيونة",    lastSeen: "منذ ساعة",       status: "offline", ordersToday: 9, lat: 33.3020, lng: 44.4180 },
+  { id: "L6", name: "عمر طارق",   area: "الدورة",     lastSeen: "منذ 3 ساعات",   status: "offline", ordersToday: 0, lat: 33.2460, lng: 44.4020 },
 ];
 
 const statusCfg = {
-  active:  { label: "يوصّل الآن", color: "hsl(142 76% 36%)", bg: "hsl(142 76% 95%)", dot: "bg-emerald-500" },
-  idle:    { label: "في انتظار طلب", color: "hsl(33 100% 45%)", bg: "hsl(33 100% 95%)", dot: "bg-orange-400" },
-  offline: { label: "غير متصل", color: "hsl(0 0% 50%)", bg: "hsl(0 0% 94%)", dot: "bg-gray-400" },
+  active:  { label: "يوصّل الآن",    color: "#16a34a", dot: "bg-emerald-500", markerColor: "#16a34a" },
+  idle:    { label: "في انتظار طلب", color: "#f97316", dot: "bg-orange-400",  markerColor: "#f97316" },
+  offline: { label: "غير متصل",      color: "#9ca3af", dot: "bg-gray-400",    markerColor: "#9ca3af" },
 };
+
+function makeIcon(color: string, selected: boolean) {
+  const size = selected ? 40 : 32;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 40 40">
+    <circle cx="20" cy="20" r="18" fill="${color}" stroke="white" stroke-width="3" opacity="${selected ? 1 : 0.9}"/>
+    <text x="20" y="26" font-size="18" text-anchor="middle" fill="white">🛵</text>
+  </svg>`;
+  return L.divIcon({
+    html: svg,
+    className: "",
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+    popupAnchor: [0, -(size / 2)],
+  });
+}
 
 export default function LocationsPage() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const [selected, setSelected] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "active" | "idle" | "offline">("all");
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<L.Map | null>(null);
+  const markersRef = useRef<Record<string, L.Marker>>({});
 
   if (!user) { setLocation("/"); return null; }
 
   const filtered = filter === "all" ? locations : locations.filter(l => l.status === filter);
   const activeCount = locations.filter(l => l.status === "active").length;
-  const idleCount = locations.filter(l => l.status === "idle").length;
+  const idleCount   = locations.filter(l => l.status === "idle").length;
+
+  useEffect(() => {
+    if (!mapRef.current || mapInstanceRef.current) return;
+
+    const map = L.map(mapRef.current, {
+      center: [33.3152, 44.3661],
+      zoom: 12,
+      zoomControl: true,
+    });
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap",
+      maxZoom: 18,
+    }).addTo(map);
+
+    locations.forEach((loc) => {
+      const cfg = statusCfg[loc.status];
+      const marker = L.marker([loc.lat, loc.lng], {
+        icon: makeIcon(cfg.markerColor, false),
+      }).addTo(map);
+
+      marker.bindPopup(`
+        <div style="font-family:'Cairo',sans-serif;direction:rtl;text-align:right;min-width:140px">
+          <p style="font-weight:700;font-size:14px;margin:0 0 4px">${loc.name}</p>
+          <p style="color:#6b7280;font-size:12px;margin:0 0 2px">📍 ${loc.area}</p>
+          <p style="font-size:12px;margin:0;color:${cfg.color};font-weight:600">${cfg.label}</p>
+          <p style="font-size:11px;color:#9ca3af;margin:4px 0 0">طلبات اليوم: ${loc.ordersToday}</p>
+        </div>
+      `);
+
+      marker.on("click", () => setSelected(loc.id));
+      markersRef.current[loc.id] = marker;
+    });
+
+    mapInstanceRef.current = map;
+
+    return () => {
+      map.remove();
+      mapInstanceRef.current = null;
+      markersRef.current = {};
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+    locations.forEach((loc) => {
+      const marker = markersRef.current[loc.id];
+      if (!marker) return;
+      const cfg = statusCfg[loc.status];
+      const isSelected = loc.id === selected;
+      marker.setIcon(makeIcon(cfg.markerColor, isSelected));
+      if (isSelected) {
+        mapInstanceRef.current!.flyTo([loc.lat, loc.lng], 14, { animate: true, duration: 0.8 });
+        marker.openPopup();
+      }
+    });
+  }, [selected]);
+
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+    const visible = filter === "all" ? locations : locations.filter(l => l.status === filter);
+    const ids = new Set(visible.map(l => l.id));
+    locations.forEach((loc) => {
+      const marker = markersRef.current[loc.id];
+      if (!marker) return;
+      if (ids.has(loc.id)) {
+        marker.addTo(mapInstanceRef.current!);
+      } else {
+        marker.removeFrom(mapInstanceRef.current!);
+      }
+    });
+  }, [filter]);
 
   return (
     <Layout title="مواقع الدلفرية">
       {/* Summary */}
       <div className="grid grid-cols-3 gap-3 mb-4">
         {[
-          { label: "يوصّلون الآن", count: activeCount, color: "hsl(142 76% 36%)", bg: "hsl(142 76% 95%)" },
-          { label: "في انتظار", count: idleCount, color: "hsl(33 100% 45%)", bg: "hsl(33 100% 95%)" },
-          { label: "إجمالي اليوم", count: locations.reduce((s, l) => s + l.ordersToday, 0), color: "hsl(217 91% 55%)", bg: "hsl(217 91% 95%)" },
+          { label: "يوصّلون الآن", count: activeCount, color: "#16a34a", bg: "hsl(142 76% 95%)" },
+          { label: "في انتظار",    count: idleCount,   color: "#f97316", bg: "hsl(33 100% 95%)"  },
+          { label: "طلبات اليوم",  count: locations.reduce((s, l) => s + l.ordersToday, 0), color: "hsl(217 91% 55%)", bg: "hsl(217 91% 95%)" },
         ].map(s => (
           <div key={s.label} className="bg-card rounded-xl p-3 border border-card-border text-center" style={{ boxShadow: "var(--shadow-xs)" }}>
             <p className="text-xl font-extrabold" style={{ color: s.color }}>{s.count}</p>
@@ -58,32 +150,9 @@ export default function LocationsPage() {
         ))}
       </div>
 
-      {/* Map placeholder */}
-      <div
-        className="bg-card rounded-2xl border border-card-border mb-4 overflow-hidden relative"
-        style={{ height: 160, boxShadow: "var(--shadow-sm)" }}
-      >
-        <div className="absolute inset-0 flex items-center justify-center"
-          style={{ background: "linear-gradient(135deg, hsl(217 91% 97%) 0%, hsl(142 76% 97%) 100%)" }}>
-          <div className="text-center">
-            <Navigation className="w-8 h-8 mx-auto mb-2 text-primary opacity-60" />
-            <p className="text-sm text-muted-foreground">خريطة مواقع الدلفرية</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {activeCount + idleCount} دلفري نشط على الخريطة
-            </p>
-          </div>
-        </div>
-        {/* Simulated map dots */}
-        {locations.filter(l => l.status !== "offline").map((l, i) => {
-          const cfg = statusCfg[l.status];
-          const left = 20 + i * 14;
-          const top = 30 + (i % 3) * 25;
-          return (
-            <div key={l.id} className="absolute" style={{ left: `${left}%`, top: `${top}%` }}>
-              <div className={`w-3 h-3 rounded-full border-2 border-white shadow ${cfg.dot} ${l.id === selected ? "w-4 h-4" : ""} transition-all`} />
-            </div>
-          );
-        })}
+      {/* Real Map */}
+      <div className="rounded-2xl overflow-hidden border border-card-border mb-4" style={{ height: 260, boxShadow: "var(--shadow-md)" }}>
+        <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
       </div>
 
       {/* Filter chips */}
@@ -98,6 +167,7 @@ export default function LocationsPage() {
         ))}
       </div>
 
+      {/* List */}
       <div className="space-y-3">
         {filtered.map(l => {
           const cfg = statusCfg[l.status];
@@ -108,15 +178,17 @@ export default function LocationsPage() {
               className="w-full bg-card rounded-2xl p-4 border text-right transition"
               style={{
                 borderColor: isSelected ? "hsl(33 100% 50%)" : "hsl(var(--card-border))",
-                boxShadow: isSelected ? "0 0 0 2px hsl(33 100% 50% / 0.2)" : "var(--shadow-sm)"
+                boxShadow: isSelected ? "0 0 0 2px hsl(33 100% 50% / 0.2), var(--shadow-sm)" : "var(--shadow-sm)",
               }}>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: cfg.bg }}>
-                  <Users className="w-5 h-5" style={{ color: cfg.color }} />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg"
+                  style={{ background: isSelected ? cfg.color : "hsl(var(--muted))" }}>
+                  🛵
                 </div>
                 <div className="flex-1 min-w-0 text-right">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-full" style={{ color: cfg.color, background: cfg.bg }}>
+                    <span className="flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-full"
+                      style={{ color: cfg.color, background: cfg.color + "18" }}>
                       <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot} inline-block`} />
                       {cfg.label}
                     </span>
