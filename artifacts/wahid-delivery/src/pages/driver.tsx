@@ -59,18 +59,26 @@ export default function DriverPage() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const [stage, setStage] = useState<Stage>("waiting");
-  const [countdown, setCountdown] = useState(5);
+  const [waitCountdown, setWaitCountdown] = useState(5);
+  const [acceptCountdown, setAcceptCountdown] = useState(10);
 
   if (!user) { setLocation("/"); return null; }
 
   useEffect(() => {
     if (stage !== "waiting") return;
-    if (countdown <= 0) { setStage("notification"); return; }
-    const t = setTimeout(() => setCountdown(c => c - 1), 1000);
+    if (waitCountdown <= 0) { setStage("notification"); setAcceptCountdown(10); return; }
+    const t = setTimeout(() => setWaitCountdown(c => c - 1), 1000);
     return () => clearTimeout(t);
-  }, [stage, countdown]);
+  }, [stage, waitCountdown]);
 
-  const reset = () => { setStage("waiting"); setCountdown(5); };
+  useEffect(() => {
+    if (stage !== "notification") return;
+    if (acceptCountdown <= 0) { reset(); return; }
+    const t = setTimeout(() => setAcceptCountdown(c => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [stage, acceptCountdown]);
+
+  const reset = () => { setStage("waiting"); setWaitCountdown(5); setAcceptCountdown(10); };
 
   const stageConfig = {
     waiting:      { title: "موقع الدلفري",  headerColor: "#16a34a" },
@@ -133,36 +141,59 @@ export default function DriverPage() {
         {/* ── WAITING countdown ── */}
         {stage === "waiting" && (
           <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50
-            bg-white/90 backdrop-blur px-5 py-2 rounded-full shadow-lg
-            text-sm font-bold text-gray-700">
-            ⏳ طلب جديد خلال {countdown} ثوانٍ...
+            bg-white/90 backdrop-blur-sm px-5 py-2 rounded-full text-sm font-bold text-gray-700"
+            style={{ boxShadow: "var(--shadow-lg)" }}>
+            ⏳ طلب جديد خلال {waitCountdown} ثوانٍ...
           </div>
         )}
 
-        {/* ── NEW ORDER notification ── */}
+        {/* ── NEW ORDER notification — centered white card ── */}
         {stage === "notification" && (
-          <div className="absolute top-5 left-4 right-4 z-50 animate-bounce-once">
-            <div className="bg-green-500 rounded-2xl p-5 shadow-2xl text-white text-center"
-              style={{ boxShadow: "0 8px 32px rgba(22,163,74,0.4)" }}>
-              <p className="text-2xl font-extrabold mb-1">طلب جديد 🚀</p>
-              <p className="text-lg mb-1">مطعم البحري</p>
-              <p className="text-sm opacity-80 mb-4">
-                المسافة: 1.2 كم · التوصيل: 8500 د.ع
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm px-6">
+            <div className="bg-white rounded-3xl p-6 w-full text-center"
+              style={{ boxShadow: "0 15px 40px rgba(0,0,0,0.3)" }}>
+
+              {/* Icon */}
+              <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                <span className="text-5xl">🛵</span>
+              </div>
+
+              {/* Title */}
+              <p className="text-3xl font-extrabold text-foreground mb-2">طلب جديد 🚀</p>
+
+              {/* Restaurant */}
+              <p className="text-xl text-gray-700 mb-2">مطعم البحري</p>
+
+              {/* Auto-reject countdown */}
+              <p className="text-lg font-bold text-red-500 mb-6">
+                مدة القبول {acceptCountdown} ثوانٍ
               </p>
+
+              {/* Progress bar */}
+              <div className="w-full h-2 bg-gray-100 rounded-full mb-6 overflow-hidden">
+                <div
+                  className="h-full bg-red-400 rounded-full transition-all duration-1000"
+                  style={{ width: `${(acceptCountdown / 10) * 100}%` }}
+                />
+              </div>
+
+              {/* Buttons */}
               <div className="flex gap-3">
                 <button
                   data-testid="button-reject-order"
-                  onClick={() => setStage("waiting") /* keep map, just hide */ || reset()}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl
-                    font-bold bg-red-500 text-white text-base transition active:scale-95"
+                  onClick={reset}
+                  className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl
+                    font-bold bg-red-500 text-white text-lg transition active:scale-95"
+                  style={{ boxShadow: "0 4px 12px rgba(239,68,68,0.4)" }}
                 >
                   <XCircle className="w-5 h-5" /> رفض
                 </button>
                 <button
                   data-testid="button-accept-order"
                   onClick={() => setStage("restaurant")}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl
-                    font-bold bg-white text-green-600 text-base transition active:scale-95"
+                  className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl
+                    font-bold bg-green-500 text-white text-lg transition active:scale-95"
+                  style={{ boxShadow: "0 4px 12px rgba(22,163,74,0.4)" }}
                 >
                   <CheckCircle className="w-5 h-5" /> قبول
                 </button>
