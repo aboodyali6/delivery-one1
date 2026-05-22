@@ -18,12 +18,12 @@ interface DelivererLocation {
 }
 
 const locations: DelivererLocation[] = [
-  { id: "L1", name: "علي حسين",   area: "الكرادة",    lastSeen: "منذ 2 دقيقة",   status: "active",  ordersToday: 7, lat: 33.3152, lng: 44.3661 },
-  { id: "L2", name: "محمد ياسر",  area: "المنصور",    lastSeen: "منذ 5 دقائق",   status: "active",  ordersToday: 5, lat: 33.3380, lng: 44.3530 },
-  { id: "L3", name: "سامر علاء",  area: "الجادرية",   lastSeen: "منذ 8 دقائق",   status: "idle",    ordersToday: 3, lat: 33.2820, lng: 44.3760 },
-  { id: "L4", name: "حسن مهدي",  area: "الأعظمية",   lastSeen: "منذ 15 دقيقة",  status: "idle",    ordersToday: 4, lat: 33.3620, lng: 44.3870 },
-  { id: "L5", name: "كريم أحمد",  area: "الزيونة",    lastSeen: "منذ ساعة",       status: "offline", ordersToday: 9, lat: 33.3020, lng: 44.4180 },
-  { id: "L6", name: "عمر طارق",   area: "الدورة",     lastSeen: "منذ 3 ساعات",   status: "offline", ordersToday: 0, lat: 33.2460, lng: 44.4020 },
+  { id: "L1", name: "علي حسين",   area: "العشار",         lastSeen: "منذ 2 دقيقة",   status: "active",  ordersToday: 7, lat: 30.5085, lng: 47.7804 },
+  { id: "L2", name: "محمد ياسر",  area: "التميمية",       lastSeen: "منذ 5 دقائق",   status: "active",  ordersToday: 5, lat: 30.5210, lng: 47.8020 },
+  { id: "L3", name: "سامر علاء",  area: "المعقل",         lastSeen: "منذ 8 دقائق",   status: "idle",    ordersToday: 3, lat: 30.5350, lng: 47.8150 },
+  { id: "L4", name: "حسن مهدي",  area: "الأصمعي",        lastSeen: "منذ 15 دقيقة",  status: "idle",    ordersToday: 4, lat: 30.4960, lng: 47.7650 },
+  { id: "L5", name: "كريم أحمد",  area: "الجزائر",        lastSeen: "منذ ساعة",       status: "offline", ordersToday: 9, lat: 30.5140, lng: 47.7550 },
+  { id: "L6", name: "عمر طارق",   area: "خندق الجيش",     lastSeen: "منذ 3 ساعات",   status: "offline", ordersToday: 0, lat: 30.4880, lng: 47.7920 },
 ];
 
 const statusCfg = {
@@ -66,7 +66,7 @@ export default function LocationsPage() {
     if (!mapRef.current || mapInstanceRef.current) return;
 
     const map = L.map(mapRef.current, {
-      center: [33.3152, 44.3661],
+      center: [30.5085, 47.7804],
       zoom: 12,
       zoomControl: true,
     });
