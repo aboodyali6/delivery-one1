@@ -1,0 +1,142 @@
+import 'package:flutter/material.dart';
+import 'delivery_map_page.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: const HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("واحد دلفري"),
+        backgroundColor: Colors.green,
+      ),
+
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+
+        child: Column(
+          children: [
+
+            buildButton(
+              context,
+              "طلباتي",
+              Icons.shopping_bag,
+            ),
+
+            buildButton(
+              context,
+              "الدلفرية",
+              Icons.delivery_dining,
+            ),
+
+            buildButton(
+              context,
+              "المطاعم",
+              Icons.restaurant,
+            ),
+
+            GestureDetector(
+              onTap: () {
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const DeliveryMapPage(),
+                  ),
+                );
+
+              },
+
+              child: Container(
+                margin: const EdgeInsets.only(top: 15),
+                padding: const EdgeInsets.all(20),
+
+                decoration: BoxDecoration(
+                  color: Colors.green,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+
+                child: Row(
+                  children: const [
+
+                    Icon(
+                      Icons.map,
+                      color: Colors.white,
+                      size: 30,
+                    ),
+
+                    SizedBox(width: 15),
+
+                    Text(
+                      "مواقع الدلفرية",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildButton(
+    BuildContext context,
+    String title,
+    IconData icon,
+  ) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 15),
+      padding: const EdgeInsets.all(20),
+
+      decoration: BoxDecoration(
+        color: Colors.black87,
+        borderRadius: BorderRadius.circular(15),
+      ),
+
+      child: Row(
+        children: [
+
+          Icon(
+            icon,
+            color: Colors.white,
+            size: 30,
+          ),
+
+          const SizedBox(width: 15),
+
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
