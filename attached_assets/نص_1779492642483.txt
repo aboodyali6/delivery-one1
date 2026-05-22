@@ -1,0 +1,25 @@
+class OrderModel {
+
+  final String restaurantName;
+
+  final double restaurantLat;
+  final double restaurantLng;
+
+  final double customerLat;
+  final double customerLng;
+
+  bool accepted;
+
+  OrderModel({
+
+    required this.restaurantName,
+
+    required this.restaurantLat,
+    required this.restaurantLng,
+
+    required this.customerLat,
+    required this.customerLng,
+
+    this.accepted = false,
+  });
+}

@@ -1,0 +1,243 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import 'order_model.dart';
+
+class DriverNotificationPage extends StatefulWidget {
+
+  final OrderModel order;
+
+  const DriverNotificationPage({
+    super.key,
+    required this.order,
+  });
+
+  @override
+  State<DriverNotificationPage> createState() =>
+      _DriverNotificationPageState();
+}
+
+class _DriverNotificationPageState
+    extends State<DriverNotificationPage> {
+
+  int seconds = 10;
+
+  Timer? timer;
+
+  bool accepted = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    startTimer();
+  }
+
+  void startTimer() {
+
+    timer = Timer.periodic(
+      const Duration(seconds: 1),
+      (timer) {
+
+        if (seconds == 0) {
+
+          timer.cancel();
+
+          if (!accepted) {
+            Navigator.pop(context);
+          }
+
+        } else {
+
+          setState(() {
+            seconds--;
+          });
+
+        }
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Scaffold(
+
+      appBar: AppBar(
+        title: const Text("طلب جديد"),
+        backgroundColor: Colors.green,
+      ),
+
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+
+        child: Column(
+
+          children: [
+
+            Text(
+              "يوجد طلب جديد",
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            Text(
+              "$seconds ثانية",
+              style: TextStyle(
+                fontSize: 40,
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 30),
+
+            ElevatedButton(
+
+              onPressed: () {
+
+                accepted = true;
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => RestaurantMapPage(
+                      order: widget.order,
+                    ),
+                  ),
+                );
+              },
+
+              child: const Text("قبول الطلب"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class RestaurantMapPage extends StatelessWidget {
+
+  final OrderModel order;
+
+  const RestaurantMapPage({
+    super.key,
+    required this.order,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Scaffold(
+
+      appBar: AppBar(
+        title: const Text("موقع المطعم"),
+        backgroundColor: Colors.orange,
+      ),
+
+      body: Column(
+
+        children: [
+
+          Expanded(
+            child: GoogleMap(
+
+              initialCameraPosition: CameraPosition(
+                target: LatLng(
+                  order.restaurantLat,
+                  order.restaurantLng,
+                ),
+                zoom: 15,
+              ),
+
+              markers: {
+
+                Marker(
+                  markerId: const MarkerId("restaurant"),
+
+                  position: LatLng(
+                    order.restaurantLat,
+                    order.restaurantLng,
+                  ),
+                ),
+              },
+            ),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.all(20),
+
+            child: ElevatedButton(
+
+              onPressed: () {
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CustomerMapPage(
+                      order: order,
+                    ),
+                  ),
+                );
+              },
+
+              child: const Text("استلمت الطلب"),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CustomerMapPage extends StatelessWidget {
+
+  final OrderModel order;
+
+  const CustomerMapPage({
+    super.key,
+    required this.order,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Scaffold(
+
+      appBar: AppBar(
+        title: const Text("موقع الزبون"),
+        backgroundColor: Colors.blue,
+      ),
+
+      body: GoogleMap(
+
+        initialCameraPosition: CameraPosition(
+          target: LatLng(
+            order.customerLat,
+            order.customerLng,
+          ),
+          zoom: 15,
+        ),
+
+        markers: {
+
+          Marker(
+            markerId: const MarkerId("customer"),
+
+            position: LatLng(
+              order.customerLat,
+              order.customerLng,
+            ),
+          ),
+        },
+      ),
+    );
+  }
+}
