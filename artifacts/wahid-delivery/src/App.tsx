@@ -14,6 +14,7 @@ import TopPage from "@/pages/top";
 import TrackPage from "@/pages/track";
 import WheelPage from "@/pages/wheel";
 import AccountPage from "@/pages/account";
+import DriverPage from "@/pages/driver";
 import { AuthProvider } from "@/context/auth";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ function Router() {
       <Route path="/track" component={TrackPage} />
       <Route path="/wheel" component={WheelPage} />
       <Route path="/account" component={AccountPage} />
+      <Route path="/driver" component={DriverPage} />
       <Route component={NotFound} />
     </Switch>
   );

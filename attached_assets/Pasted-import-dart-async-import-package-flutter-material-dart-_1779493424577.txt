@@ -1,0 +1,293 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: const DriverHomePage(),
+    );
+  }
+}
+
+class DriverHomePage extends StatefulWidget {
+  const DriverHomePage({super.key});
+
+  @override
+  State<DriverHomePage> createState() =>
+      _DriverHomePageState();
+}
+
+class _DriverHomePageState
+    extends State<DriverHomePage> {
+
+  bool showOrderNotification = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    simulateOrder();
+  }
+
+  void simulateOrder() {
+
+    Future.delayed(
+      const Duration(seconds: 5),
+      () {
+
+        setState(() {
+          showOrderNotification = true;
+        });
+
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Scaffold(
+
+      body: Stack(
+
+        children: [
+
+          GoogleMap(
+
+            initialCameraPosition: const CameraPosition(
+              target: LatLng(
+                30.5085,
+                47.7804,
+              ),
+              zoom: 14,
+            ),
+
+            myLocationEnabled: true,
+
+            markers: {
+
+              const Marker(
+                markerId: MarkerId("driver"),
+
+                position: LatLng(
+                  30.5085,
+                  47.7804,
+                ),
+              ),
+            },
+          ),
+
+          if (showOrderNotification)
+
+            Positioned(
+
+              top: 60,
+              left: 20,
+              right: 20,
+
+              child: Container(
+
+                padding: const EdgeInsets.all(20),
+
+                decoration: BoxDecoration(
+                  color: Colors.green,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+
+                child: Column(
+
+                  children: [
+
+                    const Text(
+                      "طلب جديد 🚀",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    const Text(
+                      "مطعم البحري",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                      ),
+                    ),
+
+                    const SizedBox(height: 15),
+
+                    Row(
+
+                      mainAxisAlignment:
+                          MainAxisAlignment.spaceEvenly,
+
+                      children: [
+
+                        ElevatedButton(
+
+                          onPressed: () {
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    const RestaurantPage(),
+                              ),
+                            );
+                          },
+
+                          child: const Text("قبول"),
+                        ),
+
+                        ElevatedButton(
+
+                          onPressed: () {
+
+                            setState(() {
+                              showOrderNotification = false;
+                            });
+
+                          },
+
+                          child: const Text("رفض"),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class RestaurantPage extends StatelessWidget {
+  const RestaurantPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Scaffold(
+
+      appBar: AppBar(
+        title: const Text("موقع المطعم"),
+        backgroundColor: Colors.orange,
+      ),
+
+      body: Column(
+
+        children: [
+
+          Expanded(
+
+            child: GoogleMap(
+
+              initialCameraPosition:
+                  const CameraPosition(
+
+                target: LatLng(
+                  30.5100,
+                  47.7820,
+                ),
+
+                zoom: 15,
+              ),
+
+              markers: {
+
+                const Marker(
+                  markerId: MarkerId("restaurant"),
+
+                  position: LatLng(
+                    30.5100,
+                    47.7820,
+                  ),
+                ),
+              },
+            ),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.all(20),
+
+            child: ElevatedButton(
+
+              onPressed: () {
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        const CustomerPage(),
+                  ),
+                );
+              },
+
+              child: const Text(
+                "استلمت الطلب",
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CustomerPage extends StatelessWidget {
+  const CustomerPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Scaffold(
+
+      appBar: AppBar(
+        title: const Text("موقع الزبون"),
+        backgroundColor: Colors.blue,
+      ),
+
+      body: GoogleMap(
+
+        initialCameraPosition:
+            const CameraPosition(
+
+          target: LatLng(
+            30.5150,
+            47.7900,
+          ),
+
+          zoom: 15,
+        ),
+
+        markers: {
+
+          const Marker(
+            markerId: MarkerId("customer"),
+
+            position: LatLng(
+              30.5150,
+              47.7900,
+            ),
+          ),
+        },
+      ),
+    );
+  }
+}

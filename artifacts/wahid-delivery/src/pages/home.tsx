@@ -10,9 +10,11 @@ import {
   Map,
   Dices,
   User,
+  Bike,
 } from "lucide-react";
 
 const menuItems = [
+  { label: "وضع الدلفري 🚀",  icon: Bike,            href: "/driver",      color: "#16a34a", highlight: true },
   { label: "طلباتي",          icon: ShoppingBag,     href: "/orders",     color: "#f97316" },
   { label: "المطاعم",         icon: UtensilsCrossed, href: "/restaurants", color: "#ef4444" },
   { label: "العروض",          icon: Tag,             href: "/offers",     color: "#a855f7" },
