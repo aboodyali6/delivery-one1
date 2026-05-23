@@ -150,7 +150,8 @@ export default function DriverPage() {
 
         {/* ── New order card ── */}
         {stage === "notification" && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-6">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm p-6"
+            style={{ zIndex: 9999 }}>
             <div className="bg-white rounded-3xl p-7 text-center"
               style={{ width: 320, maxWidth: "100%", boxShadow: "0 20px 50px rgba(0,0,0,0.3)" }}>
 
@@ -192,7 +193,8 @@ export default function DriverPage() {
 
         {/* Done overlay */}
         {stage === "done" && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+            style={{ zIndex: 9999 }}>
             <div className="bg-white rounded-2xl p-8 text-center mx-6 shadow-2xl">
               <p className="text-5xl mb-3">🎉</p>
               <p className="text-2xl font-extrabold text-green-600">تم التوصيل!</p>
