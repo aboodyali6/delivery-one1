@@ -155,36 +155,50 @@ export default function DriverPage() {
             <div className="bg-white rounded-3xl p-7 text-center"
               style={{ width: 320, maxWidth: "100%", boxShadow: "0 20px 50px rgba(0,0,0,0.3)" }}>
 
-              {/* Icon */}
-              <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-                <span className="text-5xl">🛵</span>
+              {/* Delivery icon */}
+              <div className="flex justify-center mb-4">
+                <span style={{ fontSize: 75, lineHeight: 1 }}>🛵</span>
               </div>
 
-              <p className="text-3xl font-extrabold text-gray-900 mb-2">طلب جديد 🚀</p>
-              <p className="text-xl text-gray-700 mb-2">مطعم البحري</p>
-              <p className="text-lg font-bold text-red-500 mb-4">
-                مدة القبول {acceptSec} ثوانٍ
-              </p>
+              {/* Title */}
+              <p className="font-extrabold text-gray-900 mb-3" style={{ fontSize: 28 }}>طلب جديد 🚀</p>
 
-              {/* Progress bar */}
-              <div className="w-full h-2 bg-gray-100 rounded-full mb-6 overflow-hidden">
-                <div className="h-full bg-red-400 rounded-full transition-all duration-1000 ease-linear"
-                  style={{ width: `${(acceptSec / 10) * 100}%` }} />
+              {/* Restaurant badge */}
+              <div className="inline-block px-4 py-2 rounded-2xl mb-4"
+                style={{ background: "#f97316" }}>
+                <span className="text-white font-bold" style={{ fontSize: 18 }}>مطعم البحري</span>
+              </div>
+
+              {/* Price + Distance row */}
+              <div className="flex justify-around mb-5">
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-green-500 text-2xl">💰</span>
+                  <span className="font-bold" style={{ fontSize: 16 }}>12,000 د.ع</span>
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-red-500 text-2xl">📍</span>
+                  <span className="font-bold" style={{ fontSize: 16 }}>2.4 KM</span>
+                </div>
+              </div>
+
+              {/* Countdown badge */}
+              <div className="rounded-2xl px-4 py-3 mb-6" style={{ background: "#ef4444" }}>
+                <span className="text-white font-bold" style={{ fontSize: 18 }}>
+                  الطلب ينتهي خلال {acceptSec} ثوانٍ
+                </span>
               </div>
 
               {/* Buttons */}
-              <div className="flex gap-3">
-                <button data-testid="button-reject-order" onClick={reset}
-                  className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl
-                    font-bold bg-red-500 text-white text-lg active:scale-95 transition-transform"
-                  style={{ boxShadow: "0 4px 14px rgba(239,68,68,0.4)" }}>
-                  <XCircle className="w-5 h-5" /> رفض
-                </button>
-                <button data-testid="button-accept-order" onClick={() => setStage("restaurant")}
-                  className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl
-                    font-bold bg-green-500 text-white text-lg active:scale-95 transition-transform"
-                  style={{ boxShadow: "0 4px 14px rgba(22,163,74,0.4)" }}>
+              <div className="flex gap-3 justify-center">
+                <button onClick={() => setStage("restaurant")}
+                  className="flex items-center gap-2 text-white font-bold rounded-xl active:scale-95 transition-transform"
+                  style={{ background: "#16a34a", padding: "15px 25px", fontSize: 18 }}>
                   <CheckCircle className="w-5 h-5" /> قبول
+                </button>
+                <button onClick={reset}
+                  className="flex items-center gap-2 text-white font-bold rounded-xl active:scale-95 transition-transform"
+                  style={{ background: "#ef4444", padding: "15px 25px", fontSize: 18 }}>
+                  <XCircle className="w-5 h-5" /> رفض
                 </button>
               </div>
             </div>

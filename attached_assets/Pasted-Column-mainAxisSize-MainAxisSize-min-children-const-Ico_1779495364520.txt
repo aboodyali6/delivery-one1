@@ -1,0 +1,201 @@
+Column(
+
+  mainAxisSize: MainAxisSize.min,
+
+  children: [
+
+    const Icon(
+      Icons.delivery_dining,
+      color: Colors.green,
+      size: 75,
+    ),
+
+    const SizedBox(height: 15),
+
+    const Text(
+      "طلب جديد 🚀",
+      style: TextStyle(
+        fontSize: 28,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+
+    const SizedBox(height: 10),
+
+    Container(
+
+      padding: const EdgeInsets.symmetric(
+        horizontal: 15,
+        vertical: 8,
+      ),
+
+      decoration: BoxDecoration(
+        color: Colors.orange,
+        borderRadius: BorderRadius.circular(15),
+      ),
+
+      child: const Text(
+        "مطعم البحري",
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+
+    const SizedBox(height: 15),
+
+    const Row(
+
+      mainAxisAlignment:
+          MainAxisAlignment.spaceEvenly,
+
+      children: [
+
+        Column(
+          children: [
+
+            Icon(
+              Icons.attach_money,
+              color: Colors.green,
+            ),
+
+            SizedBox(height: 5),
+
+            Text(
+              "12,000 د.ع",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+
+        Column(
+          children: [
+
+            Icon(
+              Icons.location_on,
+              color: Colors.red,
+            ),
+
+            SizedBox(height: 5),
+
+            Text(
+              "2.4 KM",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+
+    const SizedBox(height: 20),
+
+    Container(
+
+      padding: const EdgeInsets.all(10),
+
+      decoration: BoxDecoration(
+        color: Colors.red,
+        borderRadius: BorderRadius.circular(15),
+      ),
+
+      child: const Text(
+        "الطلب ينتهي خلال 10 ثواني",
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+
+    const SizedBox(height: 25),
+
+    Row(
+
+      mainAxisAlignment:
+          MainAxisAlignment.spaceEvenly,
+
+      children: [
+
+        ElevatedButton.icon(
+
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 25,
+              vertical: 15,
+            ),
+          ),
+
+          onPressed: () {
+
+            setState(() {
+              showPopup = false;
+            });
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) =>
+                    const RestaurantPage(),
+              ),
+            );
+          },
+
+          icon: const Icon(
+            Icons.check,
+            color: Colors.white,
+          ),
+
+          label: const Text(
+            "قبول",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+            ),
+          ),
+        ),
+
+        ElevatedButton.icon(
+
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 25,
+              vertical: 15,
+            ),
+          ),
+
+          onPressed: () {
+
+            setState(() {
+              showPopup = false;
+            });
+
+          },
+
+          icon: const Icon(
+            Icons.close,
+            color: Colors.white,
+          ),
+
+          label: const Text(
+            "رفض",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+            ),
+          ),
+        ),
+      ],
+    ),
+  ],
+)
