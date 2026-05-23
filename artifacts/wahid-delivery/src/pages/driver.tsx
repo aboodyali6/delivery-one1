@@ -72,25 +72,33 @@ export default function DriverPage() {
       navigator.vibrate([200, 100, 400, 100, 200]);
     }
 
-    // Beep sound via Web Audio API
+    // Bell ring sound via Web Audio API — طرننننن طرننننن
     try {
       const ctx = new AudioContext();
-      const playBeep = (startTime: number, freq: number, dur: number) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.frequency.value = freq;
-        osc.type = "sine";
-        gain.gain.setValueAtTime(0.6, startTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, startTime + dur);
-        osc.start(startTime);
-        osc.stop(startTime + dur);
+
+      const ring = (startTime: number) => {
+        // Layer multiple harmonics for a real bell tone
+        const freqs = [1400, 2800, 4200];
+        freqs.forEach((freq, i) => {
+          const osc  = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.type = "sine";
+          osc.frequency.value = freq;
+          const vol = i === 0 ? 0.9 : 0.3 / i;
+          gain.gain.setValueAtTime(vol, startTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + 1.1);
+          osc.start(startTime);
+          osc.stop(startTime + 1.1);
+        });
       };
+
+      // طرننننن — pause — طرننننن — pause — طرننننن
       const t = ctx.currentTime;
-      playBeep(t,        880, 0.18);
-      playBeep(t + 0.22, 880, 0.18);
-      playBeep(t + 0.44, 1100, 0.35);
+      ring(t);
+      ring(t + 1.3);
+      ring(t + 2.6);
     } catch (_) { /* browser may block autoplay */ }
   }, [stage]);
 
