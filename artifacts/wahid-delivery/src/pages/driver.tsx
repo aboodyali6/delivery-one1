@@ -63,6 +63,37 @@ export default function DriverPage() {
     setAcceptSec(10);
   }, []);
 
+  // Sound + vibration when notification appears
+  useEffect(() => {
+    if (stage !== "notification") return;
+
+    // Vibration: short-long-short pattern
+    if (navigator.vibrate) {
+      navigator.vibrate([200, 100, 400, 100, 200]);
+    }
+
+    // Beep sound via Web Audio API
+    try {
+      const ctx = new AudioContext();
+      const playBeep = (startTime: number, freq: number, dur: number) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = freq;
+        osc.type = "sine";
+        gain.gain.setValueAtTime(0.6, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + dur);
+        osc.start(startTime);
+        osc.stop(startTime + dur);
+      };
+      const t = ctx.currentTime;
+      playBeep(t,        880, 0.18);
+      playBeep(t + 0.22, 880, 0.18);
+      playBeep(t + 0.44, 1100, 0.35);
+    } catch (_) { /* browser may block autoplay */ }
+  }, [stage]);
+
   useEffect(() => {
     if (stage !== "waiting") return;
     if (waitSec <= 0) {
