@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/context/auth";
 import { CheckCircle, XCircle, ArrowRight } from "lucide-react";
@@ -12,10 +12,7 @@ const RESTAURANT_POS: [number, number] = [30.5100, 47.7820];
 const CUSTOMER_POS:   [number, number] = [30.5150, 47.7900];
 
 function FullMap({
-  center,
-  zoom,
-  markers,
-  route,
+  center, zoom, markers, route,
 }: {
   center: [number, number];
   zoom: number;
@@ -24,13 +21,11 @@ function FullMap({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
+  const key = center.join(",") + zoom + markers.length;
 
   useEffect(() => {
     if (!ref.current) return;
-    if (mapRef.current) {
-      mapRef.current.remove();
-      mapRef.current = null;
-    }
+    if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; }
 
     const map = L.map(ref.current, { center, zoom, zoomControl: true, attributionControl: false });
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
@@ -50,7 +45,7 @@ function FullMap({
 
     mapRef.current = map;
     return () => { map.remove(); mapRef.current = null; };
-  }, [center[0], center[1], zoom, markers.length]);
+  }, [key]);
 
   return <div ref={ref} style={{ width: "100%", height: "100%" }} />;
 }
@@ -59,142 +54,135 @@ export default function DriverPage() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const [stage, setStage] = useState<Stage>("waiting");
-  const [waitCountdown, setWaitCountdown] = useState(3);
-  const [acceptCountdown, setAcceptCountdown] = useState(10);
+  const [waitSec, setWaitSec]     = useState(3);
+  const [acceptSec, setAcceptSec] = useState(10);
 
-  if (!user) { setLocation("/"); return null; }
+  const reset = useCallback(() => {
+    setStage("waiting");
+    setWaitSec(3);
+    setAcceptSec(10);
+  }, []);
 
   useEffect(() => {
     if (stage !== "waiting") return;
-    if (waitCountdown <= 0) { setStage("notification"); setAcceptCountdown(10); return; }
-    const t = setTimeout(() => setWaitCountdown(c => c - 1), 1000);
+    if (waitSec <= 0) {
+      setStage("notification");
+      setAcceptSec(10);
+      return;
+    }
+    const t = setTimeout(() => setWaitSec(s => s - 1), 1000);
     return () => clearTimeout(t);
-  }, [stage, waitCountdown]);
+  }, [stage, waitSec]);
 
   useEffect(() => {
     if (stage !== "notification") return;
-    if (acceptCountdown <= 0) { reset(); return; }
-    const t = setTimeout(() => setAcceptCountdown(c => c - 1), 1000);
+    if (acceptSec <= 0) { reset(); return; }
+    const t = setTimeout(() => setAcceptSec(s => s - 1), 1000);
     return () => clearTimeout(t);
-  }, [stage, acceptCountdown]);
+  }, [stage, acceptSec, reset]);
 
-  const reset = () => { setStage("waiting"); setWaitCountdown(5); setAcceptCountdown(10); };
+  if (!user) { setLocation("/"); return null; }
 
-  const stageConfig = {
-    waiting:      { title: "موقع الدلفري",  headerColor: "#16a34a" },
-    notification: { title: "موقع الدلفري",  headerColor: "#16a34a" },
-    restaurant:   { title: "موقع المطعم",   headerColor: "#f97316" },
-    customer:     { title: "موقع الزبون",   headerColor: "#3b82f6" },
-    done:         { title: "تم التوصيل",    headerColor: "#16a34a" },
-  };
+  const headerColor = {
+    waiting:      "#16a34a",
+    notification: "#16a34a",
+    restaurant:   "#f97316",
+    customer:     "#3b82f6",
+    done:         "#16a34a",
+  }[stage];
 
-  const cfg = stageConfig[stage];
+  const headerTitle = {
+    waiting:      "موقع الدلفري",
+    notification: "موقع الدلفري",
+    restaurant:   "موقع المطعم",
+    customer:     "موقع الزبون",
+    done:         "تم التوصيل",
+  }[stage];
 
   const mapProps = (() => {
-    if (stage === "waiting" || stage === "notification") {
-      return {
-        center: DRIVER_POS, zoom: 14,
-        markers: [{ pos: DRIVER_POS, emoji: "🛵", label: user.name, color: "#16a34a" }],
-      };
-    }
-    if (stage === "restaurant") {
-      return {
-        center: RESTAURANT_POS, zoom: 15,
-        markers: [
-          { pos: DRIVER_POS,     emoji: "🛵", label: "أنت",          color: "#16a34a" },
-          { pos: RESTAURANT_POS, emoji: "🍽️", label: "مطعم البحري",  color: "#f97316" },
-        ],
-        route: [DRIVER_POS, RESTAURANT_POS] as [number, number][],
-      };
-    }
-    if (stage === "customer" || stage === "done") {
-      return {
-        center: CUSTOMER_POS, zoom: 15,
-        markers: [
-          { pos: RESTAURANT_POS, emoji: "🍽️", label: "مطعم البحري", color: "#f97316" },
-          { pos: CUSTOMER_POS,   emoji: "🏠",  label: "الزبون",       color: "#3b82f6" },
-        ],
-        route: [RESTAURANT_POS, CUSTOMER_POS] as [number, number][],
-      };
-    }
-    return { center: DRIVER_POS as [number, number], zoom: 14, markers: [] };
+    if (stage === "restaurant") return {
+      center: RESTAURANT_POS, zoom: 15,
+      markers: [
+        { pos: DRIVER_POS,     emoji: "🛵", label: user.name,        color: "#16a34a" },
+        { pos: RESTAURANT_POS, emoji: "🍽️", label: "مطعم البحري",   color: "#f97316" },
+      ],
+      route: [DRIVER_POS, RESTAURANT_POS] as [number, number][],
+    };
+    if (stage === "customer" || stage === "done") return {
+      center: CUSTOMER_POS, zoom: 15,
+      markers: [
+        { pos: RESTAURANT_POS, emoji: "🍽️", label: "مطعم البحري",  color: "#f97316" },
+        { pos: CUSTOMER_POS,   emoji: "🏠",  label: "الزبون",        color: "#3b82f6" },
+      ],
+      route: [RESTAURANT_POS, CUSTOMER_POS] as [number, number][],
+    };
+    return {
+      center: DRIVER_POS, zoom: 14,
+      markers: [{ pos: DRIVER_POS, emoji: "🛵", label: user.name, color: "#16a34a" }],
+    };
   })();
 
   return (
     <div className="flex flex-col" style={{ height: "100dvh" }}>
-      {/* Header */}
-      <div
-        className="flex items-center gap-3 px-4 py-3 text-white flex-shrink-0"
-        style={{ background: cfg.headerColor }}
-      >
+
+      {/* ── Header ── */}
+      <div className="flex items-center gap-3 px-4 py-3 text-white flex-shrink-0"
+        style={{ background: headerColor }}>
         <button onClick={() => setLocation("/home")} className="opacity-80 hover:opacity-100">
           <ArrowRight className="w-6 h-6" />
         </button>
-        <h1 className="text-xl font-bold flex-1 text-center">{cfg.title}</h1>
+        <h1 className="text-xl font-bold flex-1 text-center">{headerTitle}</h1>
         <div className="w-6" />
       </div>
 
-      {/* Map layer */}
+      {/* ── Map ── */}
       <div className="flex-1 relative" style={{ minHeight: 0 }}>
         <FullMap {...mapProps} />
 
-        {/* ── WAITING countdown ── */}
+        {/* Waiting pill */}
         {stage === "waiting" && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50
-            bg-white/90 backdrop-blur-sm px-5 py-2 rounded-full text-sm font-bold text-gray-700"
-            style={{ boxShadow: "var(--shadow-lg)" }}>
-            ⏳ طلب جديد خلال {waitCountdown} ثوانٍ...
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 whitespace-nowrap
+            bg-white/95 backdrop-blur-sm px-5 py-2 rounded-full text-sm font-bold text-gray-700"
+            style={{ boxShadow: "0 4px 16px rgba(0,0,0,0.15)" }}>
+            ⏳ طلب جديد خلال {waitSec} ثوانٍ...
           </div>
         )}
 
-        {/* ── NEW ORDER notification — centered white card ── */}
+        {/* ── New order card ── */}
         {stage === "notification" && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm px-6">
-            <div className="bg-white rounded-3xl p-6 text-center"
-              style={{ width: 320, maxWidth: "100%", boxShadow: "0 15px 40px rgba(0,0,0,0.26)" }}>
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-6">
+            <div className="bg-white rounded-3xl p-7 text-center"
+              style={{ width: 320, maxWidth: "100%", boxShadow: "0 20px 50px rgba(0,0,0,0.3)" }}>
 
               {/* Icon */}
               <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
                 <span className="text-5xl">🛵</span>
               </div>
 
-              {/* Title */}
-              <p className="text-3xl font-extrabold text-foreground mb-2">طلب جديد 🚀</p>
-
-              {/* Restaurant */}
+              <p className="text-3xl font-extrabold text-gray-900 mb-2">طلب جديد 🚀</p>
               <p className="text-xl text-gray-700 mb-2">مطعم البحري</p>
-
-              {/* Auto-reject countdown */}
-              <p className="text-lg font-bold text-red-500 mb-6">
-                مدة القبول {acceptCountdown} ثوانٍ
+              <p className="text-lg font-bold text-red-500 mb-4">
+                مدة القبول {acceptSec} ثوانٍ
               </p>
 
               {/* Progress bar */}
               <div className="w-full h-2 bg-gray-100 rounded-full mb-6 overflow-hidden">
-                <div
-                  className="h-full bg-red-400 rounded-full transition-all duration-1000"
-                  style={{ width: `${(acceptCountdown / 10) * 100}%` }}
-                />
+                <div className="h-full bg-red-400 rounded-full transition-all duration-1000 ease-linear"
+                  style={{ width: `${(acceptSec / 10) * 100}%` }} />
               </div>
 
               {/* Buttons */}
               <div className="flex gap-3">
-                <button
-                  data-testid="button-reject-order"
-                  onClick={reset}
+                <button data-testid="button-reject-order" onClick={reset}
                   className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl
-                    font-bold bg-red-500 text-white text-lg transition active:scale-95"
-                  style={{ boxShadow: "0 4px 12px rgba(239,68,68,0.4)" }}
-                >
+                    font-bold bg-red-500 text-white text-lg active:scale-95 transition-transform"
+                  style={{ boxShadow: "0 4px 14px rgba(239,68,68,0.4)" }}>
                   <XCircle className="w-5 h-5" /> رفض
                 </button>
-                <button
-                  data-testid="button-accept-order"
-                  onClick={() => setStage("restaurant")}
+                <button data-testid="button-accept-order" onClick={() => setStage("restaurant")}
                   className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl
-                    font-bold bg-green-500 text-white text-lg transition active:scale-95"
-                  style={{ boxShadow: "0 4px 12px rgba(22,163,74,0.4)" }}
-                >
+                    font-bold bg-green-500 text-white text-lg active:scale-95 transition-transform"
+                  style={{ boxShadow: "0 4px 14px rgba(22,163,74,0.4)" }}>
                   <CheckCircle className="w-5 h-5" /> قبول
                 </button>
               </div>
@@ -202,15 +190,15 @@ export default function DriverPage() {
           </div>
         )}
 
-        {/* ── DONE overlay ── */}
+        {/* Done overlay */}
         {stage === "done" && (
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
             <div className="bg-white rounded-2xl p-8 text-center mx-6 shadow-2xl">
               <p className="text-5xl mb-3">🎉</p>
               <p className="text-2xl font-extrabold text-green-600">تم التوصيل!</p>
-              <p className="text-muted-foreground mt-2 mb-5">تم توصيل الطلب بنجاح</p>
+              <p className="text-gray-500 mt-2 mb-5">تم توصيل الطلب بنجاح</p>
               <button onClick={reset}
-                className="w-full py-3 rounded-xl font-bold text-white bg-green-500">
+                className="w-full py-3 rounded-xl font-bold text-white bg-green-500 text-lg">
                 طلب جديد
               </button>
             </div>
@@ -218,39 +206,29 @@ export default function DriverPage() {
         )}
       </div>
 
-      {/* ── Bottom action button ── */}
+      {/* ── Bottom action ── */}
       {(stage === "restaurant" || stage === "customer") && (
         <div className="flex-shrink-0 p-4 bg-white border-t border-gray-100"
           style={{ boxShadow: "0 -4px 12px rgba(0,0,0,0.08)" }}>
           {stage === "restaurant" && (
-            <div className="space-y-2">
-              <div className="flex gap-3 text-sm text-gray-500 justify-center">
-                <span>🛵 → 🍽️ مطعم البحري</span>
-              </div>
-              <button
-                data-testid="button-picked-up"
-                onClick={() => setStage("customer")}
-                className="w-full py-4 rounded-2xl font-extrabold text-white text-lg transition active:scale-[0.98]"
-                style={{ background: "#f97316", boxShadow: "0 4px 16px rgba(249,115,22,0.4)" }}
-              >
+            <>
+              <p className="text-center text-sm text-gray-500 mb-3">🛵 ← اذهب إلى ← 🍽️ مطعم البحري</p>
+              <button data-testid="button-picked-up" onClick={() => setStage("customer")}
+                className="w-full py-4 rounded-2xl font-extrabold text-white text-xl active:scale-[0.98] transition-transform"
+                style={{ background: "#f97316", boxShadow: "0 4px 18px rgba(249,115,22,0.4)" }}>
                 🍽️ استلمت الطلب
               </button>
-            </div>
+            </>
           )}
           {stage === "customer" && (
-            <div className="space-y-2">
-              <div className="flex gap-3 text-sm text-gray-500 justify-center">
-                <span>🍽️ → 🏠 موقع الزبون</span>
-              </div>
-              <button
-                data-testid="button-delivered"
-                onClick={() => setStage("done")}
-                className="w-full py-4 rounded-2xl font-extrabold text-white text-lg transition active:scale-[0.98]"
-                style={{ background: "#3b82f6", boxShadow: "0 4px 16px rgba(59,130,246,0.4)" }}
-              >
+            <>
+              <p className="text-center text-sm text-gray-500 mb-3">🍽️ ← اذهب إلى ← 🏠 موقع الزبون</p>
+              <button data-testid="button-delivered" onClick={() => setStage("done")}
+                className="w-full py-4 rounded-2xl font-extrabold text-white text-xl active:scale-[0.98] transition-transform"
+                style={{ background: "#3b82f6", boxShadow: "0 4px 18px rgba(59,130,246,0.4)" }}>
                 🏠 وصّلت الطلب
               </button>
-            </div>
+            </>
           )}
         </div>
       )}
