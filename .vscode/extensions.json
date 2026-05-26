@@ -1,6 +1,7 @@
 {
     "recommendations": [
         "bhshawon.node-json-autocomplete",
-        "expo.vscode-expo-tools"
+        "expo.vscode-expo-tools",
+        "shayanahmedkhan.android-studio-color-theme"
     ]
 }

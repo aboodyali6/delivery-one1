@@ -1,14 +1,40 @@
 {
   "name": "workspace",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "license": "MIT",
+  "description": "Delivery-One: Multi-platform delivery application (Web, Mobile, Android)",
   "scripts": {
-  
-
     "build": "pnpm run typecheck && pnpm -r --if-present run build",
     "typecheck:libs": "tsc --build",
-    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
+    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck",
+    "dev": "cd artifacts/wahid-delivery && npm run dev",
+    "dev:web": "cd artifacts/wahid-delivery && npm run dev",
+    "build:web": "cd artifacts/wahid-delivery && npm run build",
+    "preview:web": "cd artifacts/wahid-delivery && npm run serve",
+    "cap:init": "npx @capacitor/cli@latest init",
+    "cap:add:android": "npx @capacitor/cli@latest add android",
+    "cap:copy": "npx @capacitor/cli@latest copy android",
+    "cap:sync": "npx @capacitor/cli@latest sync android",
+    "cap:open": "npx @capacitor/cli@latest open android",
+    "android:build": "cd android && ./gradlew assembleDebug",
+    "android:build:release": "cd android && ./gradlew assembleRelease",
+    "android:clean": "cd android && ./gradlew clean",
+    "android:test": "cd android && ./gradlew connectedAndroidTest",
+    "apk:install": "adb install -r android/app/build/outputs/apk/debug/app-debug.apk",
+    "apk:install:release": "adb install -r android/app/build/outputs/apk/release/app-release.apk",
+    "setup": "npm install --legacy-peer-deps && cd artifacts/wahid-delivery && npm install --legacy-peer-deps",
+    "setup:complete": "npm run build:web && npm run cap:sync && npm run android:build",
+    "setup:android": "npm run cap:init && npm run cap:add:android && npm run cap:sync && npm run android:build"
   },
+  "keywords": [
+    "delivery",
+    "mobile",
+    "react",
+    "vite",
+    "capacitor",
+    "android",
+    "expo"
+  ],
   "private": true,
   "devDependencies": {
     "@types/react": "~19.2.14",
@@ -16,8 +42,10 @@
     "typescript": "~5.9.3"
   },
   "dependencies": {
+    "@capacitor/android": "^8.3.4",
+    "@capacitor/cli": "^8.3.4",
+    "@capacitor/core": "^8.3.4",
     "expo": "^56.0.4",
     "firebase": "^12.13.0"
   }
 }
-
