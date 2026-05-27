@@ -1,60 +1,165 @@
-import { useLocation } from "wouter";
-import { useAuth } from "@/context/auth";
-import Layout from "@/components/layout";
 import {
-  ShoppingBag,
-  UtensilsCrossed,
-  Tag,
-  Star,
-  MapPin,
-  Map,
-  Dices,
-  User,
-  Bike,
-} from "lucide-react";
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+} from "lucide-react"
 
-const menuItems = [
-  { label: "وضع الدلفري 🚀",  icon: Bike,            href: "/driver",      color: "#16a34a", highlight: true },
-  { label: "طلباتي",          icon: ShoppingBag,     href: "/orders",     color: "#f97316" },
-  { label: "المطاعم",         icon: UtensilsCrossed, href: "/restaurants", color: "#ef4444" },
-  { label: "العروض",          icon: Tag,             href: "/offers",     color: "#a855f7" },
-  { label: "أفضل المطاعم",   icon: Star,            href: "/top",        color: "#f59e0b" },
-  { label: "تتبع الطلب",     icon: MapPin,          href: "/track",      color: "#3b82f6" },
-  { label: "مواقع الدلفرية", icon: Map,             href: "/locations",  color: "#22c55e" },
-  { label: "عجلة الحظ",      icon: Dices,           href: "/wheel",      color: "#14b8a6" },
-  { label: "حسابي",          icon: User,            href: "/account",    color: "#1c1c1c" },
+import {
+  UtensilsCrossed,
+  Fish,
+  Smartphone,
+  Gift,
+  Beef,
+  Flower2,
+  Shirt,
+  Hammer,
+  ShoppingBasket,
+  Milk,
+  Dumbbell,
+  Sparkles,
+  Home,
+  Cigarette,
+  CookingPot,
+  Store,
+} from "lucide-react-native";
+
+const categories = [
+  {
+    title: "العطارين",
+    icon: Store,
+  },
+  {
+    title: "العطور",
+    icon: Sparkles,
+  },
+  {
+    title: "مواد غذائية",
+    icon: ShoppingBasket,
+  },
+  {
+    title: "الإنشائية",
+    icon: Hammer,
+  },
+  {
+    title: "موبايلات",
+    icon: Smartphone,
+  },
+  {
+    title: "مطاعم",
+    icon: UtensilsCrossed,
+  },
+  {
+    title: "الأسماك",
+    icon: Fish,
+  },
+  {
+    title: "مواد منزلية",
+    icon: Home,
+  },
+  {
+    title: "كمال أجسام",
+    icon: Dumbbell,
+  },
+  {
+    title: "ورود وهدايا",
+    icon: Flower2,
+  },
+  {
+    title: "النراكيل",
+    icon: Cigarette,
+  },
+  {
+    title: "قشطة وحليب",
+    icon: Milk,
+  },
+  {
+    title: "الحلويات",
+    icon: CookingPot,
+  },
+  {
+    title: "كوزمتك",
+    icon: Sparkles,
+  },
+  {
+    title: "ملابس رجال",
+    icon: Shirt,
+  },
+  {
+    title: "ملابس نساء",
+    icon: Gift,
+  },
 ];
 
-export default function HomePage() {
-  const { user } = useAuth();
-  const [, setLocation] = useLocation();
-
-  if (!user) {
-    setLocation("/");
-    return null;
-  }
-
+export default function CategoriesScreen() {
   return (
-    <Layout title="واحد دلفري">
-      <div className="flex flex-col gap-4">
-        {menuItems.map((item) => (
-          <button
-            key={item.href}
-            data-testid={`card-menu-${item.href.replace("/", "")}`}
-            onClick={() => setLocation(item.href)}
-            className="w-full flex items-center gap-5 px-6 py-5 rounded-2xl text-right transition active:scale-[0.98]"
-            style={{
-              background: item.color,
-              boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-            }}
-          >
-            <item.icon className="w-9 h-9 flex-shrink-0 text-white" />
-            <span className="text-[22px] font-bold text-white leading-tight">
-              {item.label}
-            </span>
-          </button>
-        ))}
-      </div>
-    </Layout>
+    <ScrollView style={styles.container}>
+      <Text style={styles.header}>الأقسام</Text>
+
+      <View style={styles.grid}>
+        {categories.map((item, index) => {
+          const Icon = item.icon;
+
+          return (
+            <TouchableOpacity key={index} style={styles.card}>
+              <Icon size={34} color="#ff7a00" />
+
+              <Text style={styles.cardText}>{item.title}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#111",
+    paddingTop: 50,
+  },
+
+  header: {
+    color: "#fff",
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 25,
+    textAlign: "center",
+  },
+
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    paddingHorizontal: 15,
+  },
+
+  card: {
+    width: "47%",
+    backgroundColor: "#1e1e1e",
+    borderRadius: 20,
+    paddingVertical: 25,
+    alignItems: "center",
+    marginBottom: 18,
+    borderWidth: 1,
+    borderColor: "#2d2d2d",
+  },
+
+  cardText: {
+    color: "#fff",
+    marginTop: 12,
+    fontSize: 16,
+    fontWeight: "600",
+  },
+});
+function Home() {
+  return (
+    <div>
+      Home Page
+    </div>
+  );
+}
+
+export default Home;

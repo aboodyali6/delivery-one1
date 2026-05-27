@@ -46,6 +46,7 @@
     "@capacitor/cli": "^8.3.4",
     "@capacitor/core": "^8.3.4",
     "expo": "^56.0.4",
-    "firebase": "^12.13.0"
+    "firebase": "^12.13.0",
+    "lucide-react": "^1.16.0"
   }
 }
